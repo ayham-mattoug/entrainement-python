@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entraînement Python</title>
+<meta name="description" content="Exercices Python auto-corrigés avec tests cachés (IN211).">
+<meta name="theme-color" content="#3047a6">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="exercices.js"></script>
+<style>
+  :root {
+    --bg: #f4f5f9; --panel: #ffffff; --text: #1d2130; --muted: #6b7185;
+    --border: #dfe2ea; --accent: #3047a6; --accent-text: #fff;
+    --ok: #1f7a3a; --ok-bg: #e3f5e8; --ko: #b3261e; --ko-bg: #fbe5e3;
+    --code-bg: #f6f7fb;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+  header { background: var(--accent); color: var(--accent-text); padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; margin: 0; font-weight: 600; }
+  #statut { margin-left: auto; font-size: 13px; opacity: .9; }
+  .layout { display: grid; grid-template-columns: 260px 1fr; gap: 16px; padding: 16px; max-width: 1200px; margin: 0 auto; }
+  nav { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 8px; align-self: start; }
+  nav h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 12px 8px 4px; }
+  nav button { display: flex; width: 100%; text-align: left; background: none; border: 0; padding: 8px 10px; border-radius: 6px; cursor: pointer; font: inherit; font-size: 14px; color: var(--text); gap: 8px; }
+  nav button:hover { background: var(--bg); }
+  nav button.actif { background: var(--accent); color: var(--accent-text); }
+  nav .coche { margin-left: auto; color: var(--ok); font-weight: 700; }
+  nav button.actif .coche { color: var(--accent-text); }
+  main { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; min-width: 0; }
+  .serie { color: var(--muted); font-size: 13px; }
+  h2 { margin: 4px 0 12px; font-size: 22px; }
+  .enonce { background: #eef2f7; border-radius: 8px; padding: 14px 16px; line-height: 1.55; }
+  .enonce pre.uml { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 10px; overflow-x: auto; font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; line-height: 1.35; }
+  .enonce ul ul { margin: 4px 0; }
+  .enonce code, td code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; color: #a3195b; }
+  .CodeMirror { border: 1px solid var(--border); border-radius: 8px; height: 260px; font-size: 14px; margin-top: 14px; }
+  .boutons { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+  .btn { font: inherit; font-size: 14px; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: #e9ebf1; cursor: pointer; }
+  .btn.primaire { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: wait; }
+  pre.sortie { background: #1e1f26; color: #e8e8e8; padding: 12px; border-radius: 8px; white-space: pre-wrap; font-size: 13px; margin: 0 0 12px; }
+  pre.erreur { background: var(--ko-bg); color: var(--ko); padding: 12px; border-radius: 8px; white-space: pre-wrap; font-size: 13px; }
+  .bandeau { padding: 10px 14px; border-radius: 8px; font-weight: 600; margin-bottom: 10px; }
+  .bandeau.ok { background: var(--ok-bg); color: var(--ok); }
+  .bandeau.ko { background: var(--ko-bg); color: var(--ko); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--bg); }
+  td pre { margin: 0; white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; }
+  tr.ok td { background: var(--ok-bg); }
+  tr.ko td { background: var(--ko-bg); }
+  td.icone { text-align: center; font-weight: 700; width: 36px; }
+  tr.ok td.icone { color: var(--ok); }
+  tr.ko td.icone { color: var(--ko); }
+  .cache { color: var(--muted); font-style: italic; }
+  nav .generer { background: #eef2f7; color: var(--accent); font-weight: 600; justify-content: center; margin-bottom: 4px; }
+  nav .titre-serie { display: flex; align-items: center; }
+  nav .titre-serie button { width: auto; margin-left: auto; padding: 2px 6px; color: var(--muted); font-size: 13px; }
+  .champ { display: block; margin: 12px 0 4px; font-weight: 600; font-size: 14px; }
+  textarea.cours, input.texte, select { width: 100%; font: inherit; font-size: 14px; padding: 8px; border: 1px solid var(--border); border-radius: 6px; }
+  textarea.cours { height: 200px; resize: vertical; }
+  .aide { color: var(--muted); font-size: 13px; }
+  .ligne { display: flex; gap: 12px; flex-wrap: wrap; }
+  .ligne > div { flex: 1; min-width: 180px; }
+  [hidden] { display: none !important; }
+  @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>🐍 Entraînement Python</h1>
+  <span id="statut">Chargement de Python…</span>
+</header>
+
+<div class="layout">
+  <nav id="menu"></nav>
+  <main>
+    <section id="vue-exercice">
+      <div class="serie" id="serie"></div>
+      <h2 id="titre"></h2>
+      <div class="enonce" id="enonce"></div>
+      <textarea id="code"></textarea>
+      <div class="boutons">
+        <button class="btn" id="executer" disabled>▶ Exécuter</button>
+        <button class="btn primaire" id="verifier" disabled>Vérifier</button>
+        <button class="btn" id="reinit">Réinitialiser la réponse</button>
+        <button class="btn" id="voir-solution" hidden>Voir une solution</button>
+      </div>
+      <div id="resultat"></div>
+    </section>
+
+    <section id="vue-generateur" hidden>
+      <h2>Générer des exercices depuis un cours</h2>
+      <p class="aide">Colle le texte d'un cours ou d'un TP, ou choisis son PDF. Claude crée des exercices avec des tests cachés, puis l'appli vérifie que chaque exercice fonctionne avant de l'ajouter.</p>
+      <label class="champ" for="gen-cours">Texte du cours</label>
+      <textarea class="cours" id="gen-cours" placeholder="Colle ici le cours ou l'énoncé du TP…"></textarea>
+      <label class="champ" for="gen-pdf">… ou un PDF</label>
+      <input type="file" id="gen-pdf" accept="application/pdf">
+      <div class="ligne">
+        <div>
+          <label class="champ" for="gen-nombre">Nombre d'exercices</label>
+          <select id="gen-nombre"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select>
+        </div>
+        <div style="flex: 3">
+          <label class="champ" for="gen-consigne">Précision (facultatif)</label>
+          <input class="texte" id="gen-consigne" placeholder="ex. : surtout sur les listes, niveau facile">
+        </div>
+      </div>
+      <div class="boutons">
+        <button class="btn primaire" id="gen-lancer">Générer</button>
+      </div>
+      <div id="gen-resultat"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Code Python exécuté dans Pyodide : lance le code de l'étudiant puis les tests -->
+<script type="text/x-python" id="runner-py">
+import sys, io, json, os, tempfile, traceback, linecache
+
+FICHIER_ETU = "<votre code>"
+FICHIER_TEST = "<test>"
+
+def _enregistrer(nom, source):
+    # Permet à Python d'afficher les lignes du code dans les tracebacks
+    linecache.cache[nom] = (len(source), None, source.splitlines(True), nom)
+
+def _formater(e):
+    frames = [f for f in traceback.extract_tb(e.__traceback__)
+              if f.filename in (FICHIER_ETU, FICHIER_TEST)]
+    lignes = []
+    if frames:
+        lignes.append("Traceback (most recent call last):\n")
+        lignes += traceback.format_list(frames)
+    lignes += traceback.format_exception_only(type(e), e)
+    return "".join(lignes)
+
+def _input_interdit(*args):
+    raise RuntimeError("input() n'est pas disponible ici : utilise des paramètres de fonction.")
+
+def _executer(code_compile, test_compile=None):
+    """Exécute dans un dossier vide et un espace de noms neuf. Renvoie (sortie, erreur)."""
+    os.chdir(tempfile.mkdtemp())
+    ns = {"__name__": "__main__", "input": _input_interdit}
+    tampon = io.StringIO()
+    ancien = sys.stdout
+    sys.stdout = tampon
+    erreur = None
+    try:
+        exec(code_compile, ns)
+        if test_compile is not None:
+            exec(test_compile, ns)
+    except BaseException as e:
+        erreur = _formater(e)
+    finally:
+        sys.stdout = ancien
+    return tampon.getvalue(), erreur
+
+def _compiler(source, nom):
+    _enregistrer(nom, source)
+    return compile(source, nom, "exec")
+
+def lancer(code):
+    try:
+        c = _compiler(code, FICHIER_ETU)
+    except SyntaxError as e:
+        return json.dumps({"sortie": "", "erreur": _formater(e)})
+    sortie, erreur = _executer(c)
+    return json.dumps({"sortie": sortie, "erreur": erreur})
+
+def _normaliser(texte):
+    return "\n".join(l.rstrip() for l in texte.strip().splitlines())
+
+def verifier(code, tests_json):
+    tests = json.loads(tests_json)
+    try:
+        c = _compiler(code, FICHIER_ETU)
+    except SyntaxError as e:
+        return json.dumps({"erreur_globale": _formater(e), "resultats": []})
+    resultats = []
+    for t in tests:
+        tc = _compiler(t["code"], FICHIER_TEST)
+        sortie, erreur = _executer(c, tc)
+        ok = erreur is None and _normaliser(sortie) == _normaliser(t["attendu"])
+        resultats.append({"sortie": sortie, "erreur": erreur, "ok": ok})
+        if erreur is not None:
+            break  # comme CodeRunner : on s'arrête à la première erreur
+    return json.dumps({"erreur_globale": None, "resultats": resultats})
+</script>
+
+<script>
+const DELAI_MAX = 8000; // ms avant de considérer qu'il y a une boucle infinie
+const $ = (id) => document.getElementById(id);
+const statut = $("statut");
+let worker, attente = new Map(), compteur = 0;
+
+function demarrerPython() {
+  worker = new Worker("worker.js");
+  worker.onmessage = (ev) => {
+    const p = attente.get(ev.data.id);
+    if (p) { attente.delete(ev.data.id); p(ev.data); }
+  };
+  statut.textContent = "Chargement de Python…";
+  return envoyer({ type: "init", runner: $("runner-py").textContent }, 60000).then((r) => {
+    if (r.echec) throw new Error(r.echec);
+    statut.textContent = "Python prêt ✔";
+    $("executer").disabled = $("verifier").disabled = false;
+  });
+}
+
+function envoyer(msg, delai = DELAI_MAX) {
+  const id = ++compteur;
+  return new Promise((resolve) => {
+    const minuteur = setTimeout(() => {
+      attente.delete(id);
+      worker.terminate();
+      resolve({ id, timeout: true });
+      demarrerPython();
+    }, delai);
+    attente.set(id, (data) => { clearTimeout(minuteur); resolve(data); });
+    worker.postMessage({ ...msg, id });
+  });
+}
+
+// ---------- Exercices et progression ----------
+const lireStockage = (k, def) => { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } };
+const ecrireStockage = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+let reussis = lireStockage("reussis", {});
+let generes = lireStockage("generes", []); // exercices créés par Claude
+let courant = null;
+let serveurIA = false; // true quand server.py répond (génération par IA possible)
+const tous = () => [...EXERCICES, ...generes];
+
+const editeur = CodeMirror.fromTextArea($("code"), {
+  mode: "python", lineNumbers: true, indentUnit: 4, tabSize: 4,
+  extraKeys: { Tab: (cm) => cm.replaceSelection("    ") },
+});
+editeur.on("change", () => { if (courant) ecrireStockage("code:" + courant.id, editeur.getValue()); });
+
+function afficherMenu() {
+  const menu = $("menu");
+  menu.innerHTML = "";
+  if (serveurIA) { // seulement si l'appli tourne avec server.py
+    const g = document.createElement("button");
+    g.className = "generer" + (courant ? "" : " actif");
+    g.textContent = "＋ Générer depuis un cours";
+    g.onclick = ouvrirGenerateur;
+    menu.appendChild(g);
+  }
+  let serie = null;
+  for (const ex of tous()) {
+    if (ex.serie !== serie) {
+      serie = ex.serie;
+      const h = document.createElement("h3");
+      h.className = "titre-serie";
+      h.textContent = serie;
+      if (ex.genere) {
+        const nomSerie = serie;
+        const sup = document.createElement("button");
+        sup.textContent = "✕";
+        sup.title = "Supprimer cette série";
+        sup.onclick = () => supprimerSerie(nomSerie);
+        h.appendChild(sup);
+      }
+      menu.appendChild(h);
+    }
+    const b = document.createElement("button");
+    b.className = courant && courant.id === ex.id ? "actif" : "";
+    b.innerHTML = `<span></span><span class="coche">${reussis[ex.id] ? "✔" : ""}</span>`;
+    b.firstChild.textContent = ex.titre;
+    b.onclick = () => ouvrir(ex);
+    menu.appendChild(b);
+  }
+}
+
+function ouvrir(ex) {
+  courant = ex;
+  $("vue-exercice").hidden = false;
+  $("vue-generateur").hidden = true;
+  $("voir-solution").hidden = !ex.solution;
+  $("serie").textContent = ex.serie;
+  $("titre").textContent = ex.titre;
+  $("enonce").innerHTML = ex.enonce;
+  editeur.setValue(lireStockage("code:" + ex.id, ex.code_depart));
+  $("resultat").innerHTML = "";
+  afficherMenu();
+  ecrireStockage("dernier", ex.id);
+}
+
+const echapper = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+async function occupe(fn) {
+  $("executer").disabled = $("verifier").disabled = true;
+  try { await fn(); } finally { if (statut.textContent.includes("prêt")) $("executer").disabled = $("verifier").disabled = false; }
+}
+
+$("executer").onclick = () => occupe(async () => {
+  $("resultat").innerHTML = "<p>Exécution…</p>";
+  const r = await envoyer({ type: "lancer", code: editeur.getValue() });
+  if (r.timeout) { $("resultat").innerHTML = `<pre class="erreur">Temps dépassé : ton programme tourne peut-être en boucle infinie.</pre>`; return; }
+  if (r.echec) { $("resultat").innerHTML = `<pre class="erreur">${echapper(r.echec)}</pre>`; return; }
+  const { sortie, erreur } = r.res;
+  $("resultat").innerHTML =
+    `<pre class="sortie">${echapper(sortie) || "<i>(aucune sortie)</i>"}</pre>` +
+    (erreur ? `<pre class="erreur">${echapper(erreur)}</pre>` : "");
+});
+
+$("verifier").onclick = () => occupe(async () => {
+  const ex = courant;
+  $("resultat").innerHTML = "<p>Vérification…</p>";
+  const r = await envoyer({ type: "verifier", code: editeur.getValue(), tests: ex.tests });
+  if (r.timeout) { $("resultat").innerHTML = `<div class="bandeau ko">Temps dépassé : boucle infinie ?</div>`; return; }
+  if (r.echec) { $("resultat").innerHTML = `<pre class="erreur">${echapper(r.echec)}</pre>`; return; }
+  const { erreur_globale, resultats } = r.res;
+  if (erreur_globale) {
+    $("resultat").innerHTML = `<div class="bandeau ko">Erreur de syntaxe : ton code ne peut pas être exécuté.</div><pre class="erreur">${echapper(erreur_globale)}</pre>`;
+    return;
+  }
+  const tousOk = resultats.length === ex.tests.length && resultats.every((x) => x.ok);
+  const cacheRate = resultats.every((x, i) => x.ok || ex.tests[i].cache) && !resultats.every((x) => x.ok);
+  let lignes = "";
+  resultats.forEach((res, i) => {
+    const t = ex.tests[i];
+    const obtenu = res.erreur ? `<pre>${echapper(res.sortie)}${echapper(res.erreur)}</pre>` : `<pre>${echapper(res.sortie)}</pre>`;
+    lignes += t.cache
+      ? `<tr class="${res.ok ? "ok" : "ko"}"><td class="icone">${res.ok ? "✔" : "✘"}</td><td colspan="3" class="cache">Test caché</td></tr>`
+      : `<tr class="${res.ok ? "ok" : "ko"}"><td class="icone">${res.ok ? "✔" : "✘"}</td><td><pre>${echapper(t.code)}</pre></td><td><pre>${echapper(t.attendu)}</pre></td><td>${obtenu}</td></tr>`;
+  });
+  let bandeau;
+  if (tousOk) bandeau = `<div class="bandeau ok">Tous les tests sont passés ! 🎉</div>`;
+  else if (resultats.some((x) => x.erreur)) bandeau = `<div class="bandeau ko">Ton code a provoqué une erreur. Le test a été interrompu.</div>`;
+  else if (cacheRate) bandeau = `<div class="bandeau ko">Ton code a échoué à un ou plusieurs tests cachés.</div>`;
+  else bandeau = `<div class="bandeau ko">Certains tests ne passent pas.</div>`;
+  $("resultat").innerHTML = bandeau +
+    `<table><thead><tr><th></th><th>Test</th><th>Attendu</th><th>Obtenu</th></tr></thead><tbody>${lignes}</tbody></table>`;
+  if (tousOk) { reussis[ex.id] = true; ecrireStockage("reussis", reussis); afficherMenu(); }
+});
+
+$("reinit").onclick = () => { editeur.setValue(courant.code_depart); $("resultat").innerHTML = ""; };
+
+$("voir-solution").onclick = () => {
+  if (!confirm("Afficher une solution ? Essaie d'abord par toi-même 😉")) return;
+  $("resultat").innerHTML = `<p><strong>Une solution possible :</strong></p><pre class="sortie">${echapper(courant.solution)}</pre>`;
+};
+
+// ---------- Génération par IA ----------
+function ouvrirGenerateur() {
+  courant = null;
+  $("vue-exercice").hidden = true;
+  $("vue-generateur").hidden = false;
+  afficherMenu();
+}
+
+function supprimerSerie(nom) {
+  if (!confirm(`Supprimer la série « ${nom} » ?`)) return;
+  generes = generes.filter((e) => e.serie !== nom);
+  ecrireStockage("generes", generes);
+  if (courant && courant.serie === nom) ouvrir(EXERCICES[0]); else afficherMenu();
+}
+
+const lirePdf = (fichier) => new Promise((resolve, reject) => {
+  const r = new FileReader();
+  r.onload = () => resolve(r.result.split(",")[1]); // data:application/pdf;base64,XXXX
+  r.onerror = reject;
+  r.readAsDataURL(fichier);
+});
+
+// Vérifie qu'un exercice généré est correct : sa solution doit passer tous ses tests,
+// et son code de départ ne doit PAS déjà les passer.
+async function exerciceValide(ex) {
+  if (!ex.tests?.length || !ex.tests.some((t) => t.cache) || !ex.tests.some((t) => !t.cache)) return "il manque des tests visibles ou cachés";
+  const avecSolution = await envoyer({ type: "verifier", code: ex.solution, tests: ex.tests });
+  if (avecSolution.timeout || avecSolution.echec) return "la solution ne s'exécute pas";
+  const r = avecSolution.res;
+  if (r.erreur_globale) return "la solution contient une erreur de syntaxe";
+  const rate = r.resultats.findIndex((x) => !x.ok);
+  if (rate !== -1 || r.resultats.length !== ex.tests.length) return `la solution échoue au test ${rate + 1}`;
+  const avecDepart = await envoyer({ type: "verifier", code: ex.code_depart, tests: ex.tests });
+  if (avecDepart.res && !avecDepart.res.erreur_globale && avecDepart.res.resultats.length === ex.tests.length && avecDepart.res.resultats.every((x) => x.ok))
+    return "le code de départ réussit déjà les tests";
+  return null;
+}
+
+$("gen-lancer").onclick = async () => {
+  const sortie = $("gen-resultat");
+  const cours = $("gen-cours").value.trim();
+  const fichier = $("gen-pdf").files[0];
+  if (!cours && !fichier) { sortie.innerHTML = `<div class="bandeau ko">Colle un cours ou choisis un PDF.</div>`; return; }
+  if (!statut.textContent.includes("prêt")) { sortie.innerHTML = `<div class="bandeau ko">Attends que Python soit chargé.</div>`; return; }
+  $("gen-lancer").disabled = true;
+  try {
+    sortie.innerHTML = "<p>⏳ Claude lit le cours et prépare les exercices… (30 s à 2 min)</p>";
+    const corps = {
+      cours,
+      pdf: fichier ? await lirePdf(fichier) : "",
+      nombre: Number($("gen-nombre").value),
+      consigne: $("gen-consigne").value,
+    };
+    let rep;
+    try {
+      rep = await fetch("/api/generer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) });
+    } catch {
+      sortie.innerHTML = `<div class="bandeau ko">Serveur injoignable. Lance l'appli avec <code>python server.py</code>.</div>`; return;
+    }
+    const donnees = await rep.json().catch(() => ({ erreur: `Réponse inattendue du serveur (${rep.status}). Lance l'appli avec python server.py.` }));
+    if (!rep.ok || donnees.erreur) { sortie.innerHTML = `<div class="bandeau ko">${echapper(donnees.erreur || "Erreur inconnue")}</div>`; return; }
+
+    sortie.innerHTML = "<p>🧪 Vérification des exercices avec Python…</p>";
+    const nomSerie = "✨ " + (donnees.titre_serie || "Série générée");
+    const prefixe = "gen-" + Date.now() + "-";
+    const gardes = [], rejetes = [];
+    for (const [i, ex] of donnees.exercices.entries()) {
+      const probleme = await exerciceValide(ex);
+      if (probleme) rejetes.push(`${ex.titre} : ${probleme}`);
+      else gardes.push({ ...ex, id: prefixe + i, serie: nomSerie, genere: true });
+    }
+    if (!gardes.length) {
+      sortie.innerHTML = `<div class="bandeau ko">Aucun exercice valide. Réessaie (ou précise la demande).</div><ul>${rejetes.map((r) => `<li>${echapper(r)}</li>`).join("")}</ul>`;
+      return;
+    }
+    generes = [...generes, ...gardes];
+    ecrireStockage("generes", generes);
+    afficherMenu();
+    sortie.innerHTML =
+      `<div class="bandeau ok">${gardes.length} exercice(s) ajouté(s) dans « ${echapper(nomSerie)} ».</div>` +
+      (rejetes.length ? `<p class="aide">Écartés car leurs tests étaient faux :</p><ul>${rejetes.map((r) => `<li>${echapper(r)}</li>`).join("")}</ul>` : "") +
+      `<button class="btn primaire" id="gen-ouvrir">Commencer le premier exercice</button>`;
+    $("gen-ouvrir").onclick = () => ouvrir(gardes[0]);
+  } finally {
+    $("gen-lancer").disabled = false;
+  }
+};
+
+// ---------- Démarrage ----------
+const dernier = lireStockage("dernier", null);
+ouvrir(tous().find((e) => e.id === dernier) || EXERCICES[0]);
+demarrerPython().catch((e) => { statut.textContent = "Erreur de chargement de Python : " + e.message; });
+
+// Le bouton « Générer » n'apparaît que si server.py est là (pas sur la version en ligne).
+fetch("api/sante").then((r) => r.ok && r.json()).then((d) => {
+  if (d && d.ok) { serveurIA = true; afficherMenu(); }
+}).catch(() => {});
+
+// Appli installable et utilisable hors ligne
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
